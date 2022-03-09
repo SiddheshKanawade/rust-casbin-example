@@ -18,11 +18,6 @@ jobs:
     - name: "Checkout Repository"
       uses: actions/checkout@v1
   
-    - name: Generate test secret key
-      shell: sh
-      run: |
-        mv src/secret.key.sample src/secret.key
-      working-directory: actix-middleware-example
 
     - name: "Print Rust Version"
       run: |
@@ -55,12 +50,6 @@ jobs:
     steps:
     - name: "Checkout Repository"
       uses: actions/checkout@v3
-
-    - name: Generate test secret key
-      shell: sh
-      run: |
-        mv src/secret.key.sample src/secret.key
-      working-directory: actix-middleware-example
 
     - name: "Use the latest Rust stable with clippy"
       uses: actions-rs/toolchain@v1
