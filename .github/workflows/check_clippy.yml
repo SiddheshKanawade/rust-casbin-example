@@ -4,31 +4,52 @@ on:
   pull_request:
   push:
     branches:
-      - '*'
-      - '!staging.tmp'
-    tags:
-      - '*'
+      - 'main'
+
 
 jobs:
-  build_and_test:
-    name: Build & test
-    runs-on: ubuntu-latest
+  test:
+    name: Run tests
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
 
-      - name: Setup Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
+    - uses: Swatinem/rust-cache@v1
 
-      - uses: Swatinem/rust-cache@v1
-      
-      - name: Cargo build & test
-        run: |
-          cargo build
-          cargo test
+    - name: Cargo build
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+
+    - name: Verify tidy
+      run: git diff --exit-code
+
+    - name: Check clippy
+      uses: actions-rs/cargo@v1
+      with:
+        command: clippy
+        args: --workspace --tests --all-features -- -D warnings
+
+    - name: Check format
+      if: steps.skip-ci.outputs.skip != 'true'
+      uses: actions-rs/cargo@v1
+      with:
+        command: fmt
+        args: --all -- --check
+
+    - name: Cargo test
+      uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --workspace
 
 # jobs:
 #   test:
