@@ -1,7 +1,7 @@
 name: Check Code
 
 on:
-  pull_request: 
+  pull_request:
   push:
     branches:
       - '*'
@@ -12,28 +12,53 @@ on:
 jobs:
   test:
     name: "Test"
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
     - name: "Checkout Repository"
       uses: actions/checkout@v1
   
+    # - name: Generate test secret key
+    #   shell: sh
+    #   run: |
+    #     mv src/secret.key.sample src/secret.key
+    #   working-directory: actix-middleware-example
+
+    - name: "Checkout Repository"
+      uses: actions/checkout@v1
+
+    - name: "Use Rust stable"
+      uses: actions-rs/toolchain@v1
+      with:
+          toolchain: stable
+          profile: minimal
+  
+    - name: "Check rust_cache"
+      uses: Swatinem/rust-cache@v1 
 
     - name: "Print Rust Version"
       run: |
-        rustc --version
-        cargo --version
-    - name: "Build for Linux"
+        rustc -Vv
+        cargo -Vv
+    
+    - name: "Build"
       run: |
         cargo check --all
         cargo test --all --no-fail-fast
 
   check_formatting:
     name: "Check Formatting"
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+  
     steps:
     - name: "Checkout Repository"
-      uses: actions/checkout@v3
+      uses: actions/checkout@v1
 
     - name: "Use the latest Rust stable with rustfmt"
       uses: actions-rs/toolchain@v1
@@ -46,10 +71,20 @@ jobs:
 
   check_clippy:
     name: "Check Clippy"
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
     steps:
     - name: "Checkout Repository"
-      uses: actions/checkout@v3
+      uses: actions/checkout@v1
+
+    # - name: Generate test secret key
+    #   shell: sh
+    #   run: |
+    #     mv src/secret.key.sample src/secret.key
+    #   working-directory: actix-middleware-example
 
     - name: "Use the latest Rust stable with clippy"
       uses: actions-rs/toolchain@v1
@@ -59,3 +94,5 @@ jobs:
           components: clippy
           override: true
     - run: cargo clippy -- -D warnings
+
+    
