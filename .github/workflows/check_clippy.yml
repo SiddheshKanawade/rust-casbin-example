@@ -27,7 +27,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            ./target
+            **/target
           key: cache-rust-target-${{ hashFiles('Cargo.lock') }}
 
     - name: Cargo build
