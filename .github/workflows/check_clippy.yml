@@ -23,12 +23,10 @@ jobs:
         submodules: recursive
 
     - name: Cache build artifacts
-        id: cache-rust-target
-        uses: actions/cache@v2
-        with:
-          path: |
-            **/target
-          key: cache-rust-target-${{ hashFiles('Cargo.lock') }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          **/target
 
     - name: Cargo build
       uses: actions-rs/cargo@v1
